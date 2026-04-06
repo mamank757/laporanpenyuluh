@@ -7,86 +7,74 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+
+    /* Pengaturan Ukuran Kertas A4 */
+    .page {
+        background: white; 
+        width: 210mm; 
+        height: 296mm; /* Dikurangi 1mm agar tidak memicu halaman kosong */
+        padding: 20mm 25mm; 
+        margin: 20px auto; 
+        color: black;
+        font-family: 'Times New Roman', Times, serif; 
+        font-size: 11pt; 
+        line-height: 1.6;
+        box-shadow: 0 0 40px rgba(0,0,0,0.5); 
+        position: relative;
+        box-sizing: border-box; /* Sangat Penting! */
+        overflow: hidden;
+    }
+
+    /* CSS Khusus Cetak */
+    @media print {
+        @page {
+            size: A4;
+            margin: 0; /* Menghilangkan margin bawaan printer */
+        }
+        body { background: white; }
+        .no-print { display: none !important; }
+        .page { 
+            margin: 0; 
+            box-shadow: none; 
+            width: 210mm; 
+            height: 297mm; 
+            page-break-after: always;
+        }
+        /* Menghilangkan header/footer otomatis browser */
+        html, body {
+            height: 100%;
+        }
+    }
+
+    /* Responsif Preview (Agar tidak meluber di layar HP) */
+    .report-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    @media screen and (max-width: 210mm) {
         .page {
-            background: white; width: 210mm; min-height: 297mm;
-            padding: 20mm 25mm; margin: 20px auto; color: black;
-            font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.6;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5); page-break-after: always; position: relative;
+            transform: scale(calc(100vw / 230mm)); /* Auto scale pas dengan lebar layar HP */
+            transform-origin: top center;
+            margin: 5px 0;
         }
-
-        .page-number { position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); font-size: 10pt; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 9pt; table-layout: fixed; }
-        th, td { border: 1px solid black; padding: 8px; vertical-align: top; word-wrap: break-word; }
-        th { background-color: #f3f4f6; font-weight: bold; text-align: center; text-transform: uppercase; }
-
-        .no-print-area { background: #1e293b; border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 1px solid #334155; }
-        .input-card { background: #334155; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #475569; transition: 0.3s; }
-        .input-card.active { border-left-color: #10b981; background: #1e293b; }
-        
-        textarea { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 6px; margin-top: 8px; min-height: 60px; font-size: 13px; }
-        input, select { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 6px; margin-top: 8px; }
-        .hidden-input { display: none; }
-
-        .sig-container { display: inline-block; min-width: 250px; text-align: center; }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .page { margin: 0; box-shadow: none; width: 210mm; }
-        }
-       /* === RESPONSIVE PDF PREVIEW (AUTO SCALE - LEBIH HALUS) === */
-.report-container {
-    width: 100%;
-    overflow-x: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Base page tetap A4 */
-.page {
-    transform-origin: top center;
-}
-
-/* Wrapper scaling biar tidak pakai margin negatif */
-@media screen {
-    .page {
-        zoom: 0.9;
+        .report-container { height: auto; }
     }
-}
 
-/* Laptop kecil */
-@media (max-width: 1280px) {
-    .page {
-        zoom: 0.75;
-    }
-}
-
-/* Tablet */
-@media (max-width: 1024px) {
-    .page {
-        zoom: 0.6;
-    }
-}
-
-/* HP */
-@media (max-width: 640px) {
-    .page {
-        zoom: 0.45;
-    }
-}
-
-/* Pastikan print tetap normal */
-@media print {
-    .page {
-        zoom: 1 !important;
-    }
-}
-    </style>
+    /* Sisanya tetap sama */
+    .page-number { position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); font-size: 10pt; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 9pt; table-layout: fixed; }
+    th, td { border: 1px solid black; padding: 8px; vertical-align: top; word-wrap: break-word; }
+    th { background-color: #f3f4f6; font-weight: bold; text-align: center; text-transform: uppercase; }
+    .no-print-area { background: #1e293b; border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 1px solid #334155; }
+    textarea, input, select { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 6px; margin-top: 8px; }
+</style>
 </head>
 <body>
 
@@ -157,7 +145,7 @@
             <div class="sig-container">
                 <span id="out_lokasi_tgl1">..., 31 Januari 2026</span><br>Penyusun,
                 <div class="h-24"></div>
-                <p class="font-bold underline uppercase inline-block border-b border-black" id="out_nama_sig1"></p>
+                <p class="font-bold uppercase inline-block border-b border-black" id="out_nama_sig1"></p>
             </div>
         </div>
         <div class="page-number">ii</div>
@@ -201,7 +189,7 @@
             <div class="sig-container">
                 <span id="out_lokasi_tgl2">..., 31 Januari 2026</span><br>Penyuluh Pertanian,
                 <div class="h-28"></div>
-                <p class="font-bold underline uppercase inline-block border-b border-black" id="out_nama_sig2"></p><br>
+                <p class="font-bold uppercase inline-block border-b border-black" id="out_nama_sig2"></p><br>
                 NIP. <span id="out_nip_sig2">-</span>
             </div>
         </div>
@@ -287,54 +275,64 @@
     }
 
     async function generateAI() {
-        const apiKey = "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";
+        const apiKey = "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"; // Pastikan API Key valid
         const btn = document.getElementById('btn-ai');
-        const kab = document.getElementById('in_kab').value;
-        const bpp = document.getElementById('in_bpp').value;
-        const bulan = document.getElementById('in_bulan').value;
-
         let sel = [];
+        
         daftarKomponen.forEach((k, i) => {
             const no = i + 1;
             if(document.getElementById(`chk_${no}`).checked) {
-                sel.push({ no, nama: k, detail: document.getElementById(`key_${no}`).value, user_kendala: document.getElementById(`ken_${no}`).value, link: document.getElementById(`ev_${no}`).value });
+                sel.push({ 
+                    no, 
+                    nama: k, 
+                    detail: document.getElementById(`key_${no}`).value, 
+                    user_kendala: document.getElementById(`ken_${no}`).value, 
+                    link: document.getElementById(`ev_${no}`).value 
+                });
             }
         });
 
-        if(sel.length === 0) return alert("Pilih kegiatan!");
-        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Processing..."; btn.disabled = true;
+        if(sel.length === 0) return alert("Pilih minimal satu kegiatan!");
+        
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Processing..."; 
+        btn.disabled = true;
 
         try {
-            const prompt = `Anda adalah seorang Penyuluh Pertanian Lapangan (PPL) profesional di Kecamatan ${bpp}, Kabupaten ${kab}. 
-            Tugas Anda adalah menyusun narasi laporan kinerja formal untuk bulan ${bulan} 2026.
-            
-            Gunakan data kegiatan berikut untuk mengisi tabel dan narasi: ${JSON.stringify(sel)}.
-            
-            ATURAN PENULISAN:
-            1. KATA PENGANTAR: Buat 3 paragraf (syukur, gambaran umum wilayah, penutup).
-            2. LATAR BELAKANG: Buat 3-4 paragraf mendalam mengenai urgensi ketahanan pangan nasional, peran penyuluhan di tingkat lapangan, dan tantangan iklim/teknis saat ini.
-            3. TUGAS POKOK: Deskripsikan fungsi fasilitator, motivator, dan edukator sesuai permenpan.
-            4. RINCIAN CAPAIAN (Items): Buat rincian teknis per item (minimal 2-3 kalimat per item). 
-               - Jika ada 'user_kendala', gunakan teks tersebut sebagai kendala.
-               - Jika 'user_kendala' kosong, buatkan kendala teknis yang logis di lapangan.
-               - Buatkan 'tindak_lanjut' yang profesional dan solutif.
-            5. KESIMPULAN: Buat 3 paragraf rangkuman.
+            const prompt = `Anda PPL Pertanian profesional. Buat laporan formal sesuai standar Kementan. Data: ${JSON.stringify(sel)}. Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab: ${document.getElementById('in_kab').value}. Bulan: ${document.getElementById('in_bulan').value} 2026. 
 
-            Output harus dalam format JSON: {"kp":"", "latar":"", "tugas":"", "tujuan":"", "kesimp":"", "items":[{"no":x, "rincian":"", "kendala":"", "tindak":""}]}`;
-            
+            Aturan:
+            1. 'kp' (Kata Pengantar) wajib 3 paragraf sesuai instruksi.
+            2. 'latar', 'tugas', 'tujuan' (Pendahulan) harus formal & teknis .
+            3. 'items' berisi rincian kegiatan (maks 3 kalimat), kendala (utamakan user_kendala), dan tindak lanjut profesional.
+            4. 'kesimp' (Kesimpulan) wajib 3 paragraf.
+
+            Output harus JSON murni: {"kp":"", "latar":"", "tugas":"", "tujuan":"", "kesimp":"", "items":[{"no":x, "rincian":"", "kendala":"", "tindak":""}]}`;
+
+            // BARIS INI YANG SEBELUMNYA HILANG/ERROR:
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }], response_format: { type: "json_object" }})
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "Authorization": `Bearer ${apiKey}` 
+                },
+                body: JSON.stringify({ 
+                    model: "llama-3.3-70b-versatile", 
+                    messages: [{ role: "user", content: prompt }], 
+                    response_format: { type: "json_object" }
+                })
             });
+
+            if (!res.ok) throw new Error("Gagal menghubungi server AI");
+
             const data = await res.json();
             const obj = JSON.parse(data.choices[0].message.content);
 
-            document.getElementById('out_kp').innerHTML = obj.kp.replace(/\n/g, '<br><br>');
-            document.getElementById('out_latar').innerHTML = obj.latar.replace(/\n/g, '<br><br>');
-            document.getElementById('out_tugas_pokok').innerHTML = obj.tugas.replace(/\n/g, '<br><br>');
+            // Update konten halaman
+            document.getElementById('out_kp').innerHTML = obj.kp.replace(/\n/g, '<br>');
+            document.getElementById('out_latar').innerHTML = obj.latar.replace(/\n/g, '<br>');
+            document.getElementById('out_tugas_pokok').innerHTML = obj.tugas.replace(/\n/g, '<br>');
             document.getElementById('out_tujuan').innerHTML = obj.tujuan.replace(/\n/g, '<br>');
-            document.getElementById('out_kesimp').innerHTML = obj.kesimp.replace(/\n/g, '<br><br>');
+            document.getElementById('out_kesimp').innerHTML = obj.kesimp.replace(/\n/g, '<br>');
 
             obj.items.forEach(item => {
                 const rCell = document.getElementById(`r_${item.no}`);
@@ -345,9 +343,17 @@
                     document.getElementById(`t_${item.no}`).innerText = item.tindak;
                 }
             });
+
+            // Hilangkan style placeholder
             document.querySelectorAll('.italic.text-gray-400').forEach(el => el.classList.remove('italic', 'text-gray-400'));
-        } catch (e) { alert("Error AI."); }
-        finally { btn.innerHTML = "🚀 GENERATE NARASI LAPORAN"; btn.disabled = false; }
+            
+        } catch (e) { 
+            console.error(e);
+            alert("Error AI: " + e.message); 
+        } finally { 
+            btn.innerHTML = "🚀 GENERATE NARASI LAPORAN"; 
+            btn.disabled = false; 
+        }
     }
     window.onload = init;
 </script>
