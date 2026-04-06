@@ -76,12 +76,22 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
             <div class="lg:col-span-1 flex flex-col gap-3"> 
                 <label class="text-xs font-bold text-slate-400 uppercase mb-1">Data Penyuluh</label>
-                <input type="text" id="in_nama" oninput="sync()" placeholder="Nama Lengkap">
+                <input type="text" id="in_nama" oninput="sync()" placeholder="Abdul Rahman, SP">
                 <input type="text" id="in_nip" oninput="sync()" placeholder="NIP">
-                <input type="text" id="in_jabatan" oninput="sync()" placeholder="Jabatan: Cth. Penyuluh Ahli Pertama">
-                <input type="text" id="in_wkpp" oninput="sync()" placeholder="Nama : Cth. Desa Manurung">
+                <select id="in_jabatan" onchange="sync()">
+                    <option value="">-- Pilih Jabatan --</option>
+                        <option value="Penyuluh Pertanian Pemula">Penyuluh Pertanian Pemula</option>
+                        <option value="Penyuluh Pertanian Terampil">Penyuluh Pertanian Terampil</option>
+                        <option value="Penyuluh Pertanian Mahir">Penyuluh Pertanian Mahir</option>
+                        <option value="Penyuluh Pertanian Penyelia">Penyuluh Pertanian Penyelia</option>
+                        <option value="Penyuluh Pertanian Ahli Pertama">Penyuluh Pertanian Ahli Pertama</option>
+                        <option value="Penyuluh Pertanian Ahli Muda">Penyuluh Pertanian Ahli Muda</option>
+                        <option value="Penyuluh Pertanian Ahli Madya">Penyuluh Pertanian Ahli Madya</option>
+                        <option value="Penyuluh Pertanian Ahli Utama">Penyuluh Pertanian Ahli Utama</option>
+                    </select>
+                <input type="text" id="in_wkpp" oninput="sync()" placeholder="WKPP: Cth. Desa Manurung">
                 <input type="text" id="in_kab" oninput="sync()" placeholder="Kabupaten">
-                <input type="text" id="in_bpp" oninput="sync()" placeholder="Kecamatan/Lokasi TTD: Cth. Kecamatan Bola">
+                <input type="text" id="in_bpp" oninput="sync()" placeholder="Kecamatan/Lokasi TTD: Cth. Bola">
                 <select id="in_bulan" onchange="sync()">
                     <option value="JANUARI">Januari</option>
                     <option value="FEBRUARI">Februari</option>
@@ -254,8 +264,8 @@
                         <label for="chk_${no}" class="font-bold text-sm text-slate-200 cursor-pointer">${no}. ${k}</label>
                     </div>
                     <div id="box_${no}" class="hidden-input space-y-2">
-                        <textarea id="key_${no}" placeholder="Detail aktivitas..."></textarea>
-                        <textarea id="ken_${no}" placeholder="Tulis kendala (Wajib manual)..." class="bg-red-900/20 border-red-500/50"></textarea>
+                        <textarea id="key_${no}" placeholder="Detail aktivitas, objek/komoditi diperjelas: Cth. Monitoring luas tambah tanam padi Poktan Sukamaju"></textarea>
+                        <textarea id="ken_${no}" placeholder="Tulis kendala (Wajib manual): Cth. Curah hujan yang sangat rendah, serangan hama tikus yang masif" class="bg-red-900/20 border-red-500/50"></textarea>
                         <input type="text" id="ev_${no}" class="text-xs" placeholder="Link G-Drive Eviden">
                     </div>
                 </div>`;
