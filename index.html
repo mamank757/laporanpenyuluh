@@ -36,6 +36,44 @@
             body { background: white; padding: 0; }
             .page { margin: 0; box-shadow: none; width: 210mm; }
         }
+        /* === MOBILE PDF PREVIEW === */
+.report-container {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Ubah .page jadi seperti kertas preview */
+.page {
+    transform-origin: top left;
+}
+
+/* Scaling khusus HP */
+@media screen and (max-width: 210mm) {
+    .report-container {
+        padding: 0;
+    }
+
+    .page {
+        transform: scale(calc(100vw / 210mm));
+        margin: 0;
+        margin-bottom: calc(20px - (297mm * (1 - (100vw / 210mm))));
+        box-shadow: none;
+    }
+}
+
+/* Print tetap normal A4 */
+@media print {
+    .report-container {
+        transform: none !important;
+    }
+
+    .page {
+        transform: none !important;
+        width: 210mm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -74,7 +112,7 @@
         </div>
     </div>
 </div>
-
+<div class="report-container">
 <div class="page">
     <h2 class="text-center font-bold text-lg mb-10">KATA PENGANTAR</h2>
     <div id="out_kp" class="text-justify leading-relaxed whitespace-pre-line italic text-gray-400">Klik Generate untuk menyusun narasi Kata Pengantar (3 Paragraf)...</div>
