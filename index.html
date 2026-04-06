@@ -326,15 +326,21 @@
         btn.disabled = true;
 
         try {
-            const prompt = `Anda PPL Pertanian profesional. Buat laporan formal sesuai standar Kementan. Data: ${JSON.stringify(sel)}. Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab: ${document.getElementById('in_kab').value}. Bulan: ${document.getElementById('in_bulan').value} 2026. 
+            const prompt = `Anda adalah PPL Pertanian Profesional. Tugas Anda: Menyusun laporan bulanan formal standar Kementerian Pertanian. 
 
-            Aturan:
-            1. 'kp' (Kata Pengantar) wajib 3 paragraf sesuai instruksi.
-            2. 'latar', 'tugas', 'tujuan' (Pendahulan) harus formal & teknis .
-            3. 'items' berisi rincian kegiatan (maks 3 kalimat), kendala (utamakan user_kendala), dan tindak lanjut profesional.
-            4. 'kesimp' (Kesimpulan) wajib 3 paragraf.
+Data Utama: ${JSON.stringify(sel)}
+Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab: ${document.getElementById('in_kab').value}.
+Periode: ${document.getElementById('in_bulan').value} 2026.
 
-            Output harus JSON murni: {"kp":"", "latar":"", "tugas":"", "tujuan":"", "kesimp":"", "items":[{"no":x, "rincian":"", "kendala":"", "tindak":""}]}`;
+Aturan Penulisan:
+1. Bahasa: Gunakan Bahasa Indonesia formal, teknis, dan objektif.
+2. 'kp' (Kata Pengantar): Wajib 3 paragraf (Pembuka, isi ringkas, penutup/harapan).
+3. 'latar', 'tugas', 'tujuan': Harus mencerminkan tupoksi PPL dan kondisi pertanian wilayah setempat.
+4. 'items': Iterasi seluruh data. 'rincian' maksimal 3 kalimat efektif. Jika 'user_kendala' kosong/null, buat kendala teknis lapangan yang relevan secara logis. 'tindak' harus berupa solusi profesional.
+5. 'kesimp' (Kesimpulan): Wajib 3 paragraf (Pencapaian, evaluasi kendala, dan rekomendasi ke depan).
+
+PENTING: Output wajib JSON murni tanpa teks pengantar apapun di luar bracket:
+{"kp":"", "latar":"", "tugas":"", "tujuan":"", "kesimp":"", "items":[{"no":1, "rincian":"", "kendala":"", "tindak":""}]}`;
 
 
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
