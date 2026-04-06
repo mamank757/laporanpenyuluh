@@ -22,7 +22,7 @@
         .page-number { position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); font-size: 10pt; }
         
         /* Pengaturan Tabel - Optimasi Kolom */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 8.5pt; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 6.5pt; table-layout: fixed; }
         th, td { 
             border: 1px solid black; 
             padding: 6px 4px; 
@@ -293,26 +293,39 @@
         });
     }
 
-    function sync() {
-        const val = (id) => document.getElementById(id).value;
-        const n = val('in_nama'); const nip = val('in_nip'); const b = val('in_bpp'); const bl = val('in_bulan');
-        
-        document.getElementById('out_nama_cover').innerText = n;
-        document.getElementById('out_nip_cover').innerText = nip;
-        document.getElementById('out_jabatan_cover').innerText = val('in_jabatan').toUpperCase();
-        document.getElementById('out_wkpp_cover').innerText = val('in_wkpp').toUpperCase();
-        document.getElementById('out_bpp_cover').innerText = b.toUpperCase();
-        document.getElementById('out_bulan_cover').innerText = `BULAN ${bl}`;
-        document.getElementById('out_nama_sig1').innerText = n;
-        document.getElementById('out_nama_sig2').innerText = n;
-        document.getElementById('out_nip_sig2').innerText = nip;
-        document.getElementById('out_bulan_2').innerText = bl;
+   function sync() {
+    const val = (id) => document.getElementById(id).value;
+    
+    // Ambil nilai dasar
+    const n = val('in_nama'); 
+    const nip = val('in_nip'); 
+    const b = val('in_bpp'); 
+    let blRaw = val('in_bulan'); // Ini yang "JANUARI"
+    
+    // Proses mengubah "JANUARI" -> "Januari"
+    const blRapi = blRaw.charAt(0).toUpperCase() + blRaw.slice(1).toLowerCase();
 
-        const tglTeks = formatTanggalIndo(val('in_tanggal'));
-        document.getElementById('out_lokasi_tgl1').innerText = `${b}, ${tglTeks}`;
-        document.getElementById('out_lokasi_tgl2').innerText = `${b}, ${tglTeks}`;
-    }
+    // 1. Update Cover (Tetap UPPERCASE untuk estetika judul)
+    document.getElementById('out_nama_cover').innerText = n;
+    document.getElementById('out_nip_cover').innerText = nip;
+    document.getElementById('out_jabatan_cover').innerText = val('in_jabatan').toUpperCase();
+    document.getElementById('out_wkpp_cover').innerText = val('in_wkpp').toUpperCase();
+    document.getElementById('out_bpp_cover').innerText = b.toUpperCase();
+    document.getElementById('out_bulan_cover').innerText = `BULAN ${blRaw}`; // Tetap JANUARI
+    
+    // 2. Update Tanda Tangan
+    document.getElementById('out_nama_sig1').innerText = n;
+    document.getElementById('out_nama_sig2').innerText = n;
+    document.getElementById('out_nip_sig2').innerText = nip;
+    
+    // 3. Update BAB II Pembahasan (Sekarang jadi "Januari")
+    document.getElementById('out_bulan_2').innerText = blRapi; 
 
+    // 4. Update Lokasi & Tanggal TTD
+    const tglTeks = formatTanggalIndo(val('in_tanggal'));
+    document.getElementById('out_lokasi_tgl1').innerText = `${b}, ${tglTeks}`;
+    document.getElementById('out_lokasi_tgl2').innerText = `${b}, ${tglTeks}`;
+}
     async function generateAI() {
         const apiKey = "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"; 
         const btn = document.getElementById('btn-ai');
