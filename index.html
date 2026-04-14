@@ -114,7 +114,7 @@
         
         
         <div class="text-slate-300 mb-8 text-sm leading-relaxed space-y-3">
-            <p></p><b>Generating</b> Form SKP Bulanan dari <b>Mamank.</b> Follow TikTok sY: <b>King Mamank</b>.</p>
+            <p></p><b>Generating</b> Form SKP Bulanan dari <b>Mamank.</b> Follow TikTok sy: <b>King Mamank</b>.</p>
             <p class="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/30 text-sm md:text-base text-emerald-50 text-left">
                 <i class="fa-solid fa-robot mr-2 text-emerald-400"></i> 
                 <b class="text-white"></b> Utk hasil cetak laporan yg optimal, gunakan <b>HP Android</b> atau <b>Laptop</b> dgn browser <b>Google Chrome.</b> Jika Generating AI</b> gagal krn trafik padat. Coba lagi beberapa saat, <b>jangan</b> <i>refresh</i> halaman.
@@ -427,93 +427,100 @@ window.onload = () => {
     document.getElementById('out_lokasi_tgl1').innerText = `${b}, ${tglTeks}`;
     document.getElementById('out_lokasi_tgl2').innerText = `${b}, ${tglTeks}`;
 }
-    async function generateAI() {
-        const apiKey = "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"; 
-        const btn = document.getElementById('btn-ai');
-        let sel = [];
-        
-        daftarKomponen.forEach((k, i) => {
-            const no = i + 1;
-            if(document.getElementById(`chk_${no}`).checked) {
-                sel.push({ 
-                    no, 
-                    nama: k, 
-                    detail: document.getElementById(`key_${no}`).value, 
-                    user_kendala: document.getElementById(`ken_${no}`).value, 
-                    link: document.getElementById(`ev_${no}`).value 
-                });
-            }
-        });
+   async function generateAI() {
+    // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbyKIfSNPq5_oeIGUEHSCkklNS-yhKbG2DJpbofRVEOb61odv6Q9CdyF4iKsWEjel9nLYQ/exec"; 
+    const btn = document.getElementById('btn-ai');
+    let sel = [];
+    
+    daftarKomponen.forEach((k, i) => {
+        const no = i + 1;
+        if(document.getElementById(`chk_${no}`).checked) {
+            sel.push({ 
+                no, 
+                nama: k, 
+                detail: document.getElementById(`key_${no}`).value, 
+                user_kendala: document.getElementById(`ken_${no}`).value, 
+                link: document.getElementById(`ev_${no}`).value 
+            });
+        }
+    });
 
-        if(sel.length === 0) return alert("Pilih minimal satu kegiatan!");
-        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Processing..."; 
-        btn.disabled = true;
+    if(sel.length === 0) return alert("Pilih minimal satu kegiatan!");
+    
+    btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Processing via Gemini..."; 
+    btn.disabled = true;
 
-        try {
-            const prompt = `Anda adalah PPL Pertanian Profesional. Tugas Anda: Menyusun laporan bulanan formal standar Kementerian Pertanian. 
-
-Data Utama: ${JSON.stringify(sel)}
+   // Prompt yang disesuaikan untuk narasi profesional tanpa subjek personal
+const promptText = `Anda adalah PPL Pertanian Profesional. Tugas: Menyusun narasi laporan bulanan formal standar Kementan yang bersifat objektif.
+Data: ${JSON.stringify(sel)}
 Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab: ${document.getElementById('in_kab').value}.
 Periode: ${document.getElementById('in_bulan').value} 2026.
 
-Aturan Penulisan:
-1. Bahasa: Gunakan Bahasa Indonesia formal, teknis, dan objektif.
-2. 'kp' (Kata Pengantar):
-- Wajib terdiri dari 3 paragraf TERPISAH (dipisahkan dengan newline \n\n).
-- Paragraf 1 (Pembuka):
-  Berisi rasa syukur kepada Tuhan Yang Maha Esa, serta penjelasan umum tentang pentingnya laporan kinerja penyuluh pertanian dalam mendukung program Kementerian Pertanian.
-- Paragraf 2 (Isi):
-  Menjelaskan secara ringkas kegiatan yang dilaksanakan berdasarkan data, mencakup pendampingan, capaian, serta peran penyuluh dalam meningkatkan produktivitas dan kesejahteraan petani.
-- Paragraf 3 (Penutup):
-  Berisi harapan, evaluasi umum, serta ucapan terima kasih kepada pihak terkait (petani, pemerintah, dll).
-- Gunakan bahasa formal, panjang, dan naratif (bukan poin-poin).
-- Hindari kalimat terlalu singkat.
-- Gunakan variasi kalimat agar terlihat profesional seperti laporan resmi pemerintah.
-3. 'latar', 'tugas', 'tujuan': Harus mencerminkan kondisi pertanian wilayah setempat dan tupoksi Penyuluh Pertanian sesuai PERMENPAN (perencanaan, pelaksanaan, evaluasi, dan pengembangan metode penyuluhan).
-4. 'items': Iterasi seluruh data. 'rincian' maksimal 1 kalimat efektif. Jika 'user_kendala' kosong/null, buat kendala teknis lapangan yang relevan secara logis. 'tindak' harus berupa solusi profesional dengan maksimal 2 kalimat efektif.
-5. 'kesimp' (Kesimpulan):
-- Wajib terdiri dari 2 paragraf TERPISAH.
-- Gunakan bahasa Indonesia formal, baku, dan naratif seperti laporan resmi pemerintah.
+ATURAN NARASI (WAJIB):
+1. JANGAN menggunakan kata ganti orang seperti "Saya", "Kami", atau menyebut nama penyuluh di dalam isi laporan.
+2. Gunakan kalimat pasif formal atau sudut pandang penulis (Contoh: "Telah dilaksanakan...", "Kegiatan difokuskan pada...", "Berdasarkan hasil pemantauan...").
+3. 'kp' (Kata Pengantar): Harus 3 paragraf narasi formal tentang rasa syukur dan pentingnya laporan kinerja ini.
+4. 'latar', 'tugas', 'tujuan': Harus mencerminkan tupoksi PPL sesuai PERMENPAN (perencanaan, pelaksanaan, dan evaluasi).
+5. 'items': Iterasi data. 'rincian' & 'tindak' maksimal 2 kalimat efektif per item.
+6. 'kesimp': Harus 3 paragraf narasi yang merangkum keberhasilan program dan strategi evaluasi ke depan.
 
-Struktur isi:
-- Paragraf 1 (Pencapaian):
-  Menjelaskan secara umum capaian kinerja penyuluh berdasarkan kegiatan yang telah dilaksanakan, termasuk kontribusi terhadap peningkatan produksi, pendampingan petani, dan dukungan terhadap program Kementerian Pertanian.
-
-- Paragraf 2 (Evaluasi Kendala):
-  Menguraikan kendala yang dihadapi di lapangan (teknis, cuaca, sarana prasarana, partisipasi petani, dll) serta dampaknya terhadap pelaksanaan kegiatan, strategi ke depan, serta harapan terhadap dukungan pemerintah,
-
-PENTING: Output wajib JSON murni tanpa teks pengantar apapun di luar bracket:
+Output WAJIB JSON murni tanpa teks pengantar atau markdown:
 {"kp":"", "latar":"", "tugas":"", "tujuan":"", "kesimp":"", "items":[{"no":1, "rincian":"", "kendala":"", "tindak":""}]}`;
+    try {
+        const res = await fetch(webAppUrl, {
+            method: "POST",
+            mode: "no-cors", // Gunakan no-cors jika mengalami kendala CORS di Apps Script
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ prompt: promptText })
+        });
 
+        // Karena no-cors tidak bisa membaca body response secara langsung, 
+        // pastikan Apps Script Anda di-deploy sebagai 'Anyone' dan 
+        // disarankan menggunakan fetch standard jika Apps Script mendukung CORS.
+        
+        // JIKA MENGGUNAKAN CORS STANDAR (Apps Script harus di-set dengan benar):
+        const response = await fetch(webAppUrl, {
+            method: "POST",
+            body: JSON.stringify({ prompt: promptText })
+        });
+        
+        const result = await response.json();
+        
+        // Parsing hasil dari Google Generative AI (Gemini/Gemma)
+        let rawContent = result.candidates[0].content.parts[0].text;
+        // Bersihkan markdown jika ada
+        rawContent = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
+        const obj = JSON.parse(rawContent);
 
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-                body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }], response_format: { type: "json_object" } })
-            });
-            const data = await res.json();
-            const obj = JSON.parse(data.choices[0].message.content);
+        // Update UI
+        document.getElementById('out_kp').innerHTML = obj.kp.replace(/\n/g, '<br>');
+        document.getElementById('out_latar').innerHTML = obj.latar.replace(/\n/g, '<br>');
+        document.getElementById('out_tugas_pokok').innerHTML = obj.tugas.replace(/\n/g, '<br>');
+        document.getElementById('out_tujuan').innerHTML = obj.tujuan.replace(/\n/g, '<br>');
+        document.getElementById('out_kesimp').innerHTML = obj.kesimp.replace(/\n/g, '<br>');
 
-            document.getElementById('out_kp').innerHTML = obj.kp.replace(/\n/g, '<br>');
-            document.getElementById('out_latar').innerHTML = obj.latar.replace(/\n/g, '<br>');
-            document.getElementById('out_tugas_pokok').innerHTML = obj.tugas.replace(/\n/g, '<br>');
-            document.getElementById('out_tujuan').innerHTML = obj.tujuan.replace(/\n/g, '<br>');
-            document.getElementById('out_kesimp').innerHTML = obj.kesimp.replace(/\n/g, '<br>');
+        obj.items.forEach(item => {
+            const rCell = document.getElementById(`r_${item.no}`);
+            const orig = sel.find(s => s.no == item.no);
+            if(rCell) {
+                rCell.innerHTML = `<div><b>${item.rincian}</b></div>${orig.link ? `<div style="font-size:7pt; color:blue; margin-top:5px; border-top: 0.5px solid #eee;">Eviden: ${orig.link}</div>` : ""}`;
+                document.getElementById(`k_${item.no}`).innerText = orig.user_kendala || item.kendala;
+                document.getElementById(`t_${item.no}`).innerText = item.tindak;
+            }
+        });
 
-            obj.items.forEach(item => {
-                const rCell = document.getElementById(`r_${item.no}`);
-                const orig = sel.find(s => s.no == item.no);
-                if(rCell) {
-                    rCell.innerHTML = `<div><b>${item.rincian}</b></div>${orig.link ? `<div style="font-size:7pt; color:blue; margin-top:5px; border-top: 0.5px solid #eee;">Eviden: ${orig.link}</div>` : ""}`;
-                    document.getElementById(`k_${item.no}`).innerText = orig.user_kendala || item.kendala;
-                    document.getElementById(`t_${item.no}`).innerText = item.tindak;
-                }
-            });
-            document.querySelectorAll('.italic.text-gray-400').forEach(el => el.classList.remove('italic', 'text-gray-400'));
-            alert("✅ Narasi Laporan Berhasil Dibuat!");
-        } catch (e) { alert("Error: " + e.message); } 
-        finally { btn.innerHTML = "🚀 GENERATE NARASI LAPORAN"; btn.disabled = false; }
+        document.querySelectorAll('.italic.text-gray-400').forEach(el => el.classList.remove('italic', 'text-gray-400'));
+        alert("✅ Laporan Berhasil Disusun via Gemini!");
+
+    } catch (e) { 
+        console.error(e);
+        alert("Error: Pastikan URL Apps Script benar dan sudah di-deploy sebagai 'Anyone'."); 
+    } finally { 
+        btn.innerHTML = "🚀 GENERATE NARASI LAPORAN"; 
+        btn.disabled = false; 
     }
+}
     window.onload = init;
 </script>
 </body>
