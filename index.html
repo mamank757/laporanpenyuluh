@@ -24,7 +24,7 @@
     box-shadow: 0 0 40px rgba(0,0,0,0.5); 
     position: relative;
     box-sizing: border-box; 
-    overflow: hidden;
+    overflow: visible;
 }
 
         .page-number { position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); font-size: 10pt; }
@@ -84,15 +84,33 @@
     }
     .no-print { display: none !important; }
     body { background: white; padding: 0; }
-    .page { 
-        margin: 0; 
-        box-shadow: none; 
-        width: 215mm; 
-        height: 330mm; 
-        page-break-after: always; 
-    }
+   .page { 
+    margin: 0; 
+    box-shadow: none; 
+    width: 215mm; 
+    min-height: 330mm; /* ✅ pakai min-height */
+    height: auto;      /* ✅ penting */
+    page-break-after: always; 
 }
 
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group; /* header tabel ulang di halaman baru */
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+}
         .report-container { width: 100%; max-width: 80rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 0 1rem; }
 
         @media screen and (max-width: 1024px) { .page { transform: scale(0.85); transform-origin: top center; margin-bottom: -50px; } }
@@ -114,10 +132,10 @@
         
         
         <div class="text-slate-300 mb-8 text-sm leading-relaxed space-y-3">
-            <p></p><b>Generating</b> Form SKP Bulanan dari <b>Mamank.</b> Follow TikTok sy: <b>King Mamank</b>.</p>
+            <p><b>Generating</b> Form SKP Bulanan dari <b>Mamank.</b> Follow TikTok sy: <b>King Mamank</b>.</p>
             <p class="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/30 text-sm md:text-base text-emerald-50 text-left">
                 <i class="fa-solid fa-robot mr-2 text-emerald-400"></i> 
-                <b class="text-white"></b> Utk hasil cetak laporan yg optimal, gunakan <b>HP Android</b> atau <b>Laptop</b> dgn browser <b>Google Chrome.</b> Jika Generating AI</b> gagal krn trafik padat. Coba lagi beberapa saat, <b>jangan</b> <i>refresh</i> halaman.
+                <b class="text-white"></b> Utk hasil cetak laporan yg optimal, gunakan <b>HP Android</b> atau <b>Laptop</b> dgn browser <b>Google Chrome.</b> <b>Jika Generating AI</b> gagal krn trafik padat. Coba lagi beberapa saat, <b>jangan</b> <i>refresh</i> halaman.
             </p>
         </div>
 
@@ -467,33 +485,33 @@ ATURAN NARASI (WAJIB):
 
 Output WAJIB JSON murni tanpa teks pengantar atau markdown:
 {"kp":"", "latar":"", "tugas":"", "tujuan":"", "kesimp":"", "items":[{"no":1, "rincian":"", "kendala":"", "tindak":""}]}`;
-    try {
-        const res = await fetch(webAppUrl, {
-            method: "POST",
-            mode: "no-cors", // Gunakan no-cors jika mengalami kendala CORS di Apps Script
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ prompt: promptText })
-        });
-
-        // Karena no-cors tidak bisa membaca body response secara langsung, 
-        // pastikan Apps Script Anda di-deploy sebagai 'Anyone' dan 
-        // disarankan menggunakan fetch standard jika Apps Script mendukung CORS.
-        
-        // JIKA MENGGUNAKAN CORS STANDAR (Apps Script harus di-set dengan benar):
+    
+try {
+        // HANYA GUNAKAN SATU FETCH (Tanpa no-cors agar response bisa dibaca)
         const response = await fetch(webAppUrl, {
             method: "POST",
             body: JSON.stringify({ prompt: promptText })
         });
         
+        // Cek jika koneksi ke Apps Script berhasil
+        if (!response.ok) throw new Error("Gagal terhubung ke Web App");
+
         const result = await response.json();
         
-        // Parsing hasil dari Google Generative AI (Gemini/Gemma)
+        // Validasi apakah ada jawaban dari model
+        if (!result.candidates || !result.candidates[0]) {
+            throw new Error("Model AI tidak memberikan jawaban. Cek API Key atau Kuota.");
+        }
+
+        // Parsing hasil dari Google Generative AI (Gemma 3)
         let rawContent = result.candidates[0].content.parts[0].text;
-        // Bersihkan markdown jika ada
+        
+        // Bersihkan markdown jika model memberikan format ```json ... ```
         rawContent = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
+        
         const obj = JSON.parse(rawContent);
 
-        // Update UI
+        // --- UPDATE UI ---
         document.getElementById('out_kp').innerHTML = obj.kp.replace(/\n/g, '<br>');
         document.getElementById('out_latar').innerHTML = obj.latar.replace(/\n/g, '<br>');
         document.getElementById('out_tugas_pokok').innerHTML = obj.tugas.replace(/\n/g, '<br>');
@@ -510,18 +528,19 @@ Output WAJIB JSON murni tanpa teks pengantar atau markdown:
             }
         });
 
+        // Hapus style placeholder (warna abu-abu & miring)
         document.querySelectorAll('.italic.text-gray-400').forEach(el => el.classList.remove('italic', 'text-gray-400'));
-        alert("✅ Laporan Berhasil Disusun via Gemini!");
+        
+        alert("✅ Laporan Berhasil Disusun via Gemma 3!");
 
     } catch (e) { 
         console.error(e);
-        alert("Error: Pastikan URL Apps Script benar dan sudah di-deploy sebagai 'Anyone'."); 
+        alert("Terjadi Kesalahan: " + e.message); 
     } finally { 
         btn.innerHTML = "🚀 GENERATE NARASI LAPORAN"; 
         btn.disabled = false; 
     }
 }
-    window.onload = init;
-</script>
+  </script>
 </body>
 </html>
