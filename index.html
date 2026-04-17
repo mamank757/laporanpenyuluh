@@ -400,12 +400,6 @@ function closeWarning() {
 }
 
 // Tambahkan pengecekan ini di dalam fungsi init() atau window.onload
-function checkFirstVisit() {
-    const hasSeen = localStorage.getItem('warningSeen');
-    if (hasSeen) {
-        document.getElementById('browser-warning').style.display = 'none';
-    }
-}
 
 // Update window.onload Anda menjadi:
 window.onload = () => {
