@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Laporan Bulanan PPL Sulsel - King Mamank</title>
+    <title>Form Laporan Bulanan PPL SULSEL - King Mamank</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -15,7 +15,7 @@
     background: white; 
     width: 215mm; /* Ubah dari 210mm ke 215mm */
     min-height: 330mm; /* Ubah dari 297mm ke 330mm */
-    padding: 20mm 20mm; 
+    padding: 25mm 20mm 20mm 20mm; 
     margin: 20px auto; 
     color: black;
     font-family: 'Times New Roman', Times, serif; 
@@ -30,7 +30,7 @@
         .page-number { position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); font-size: 10pt; }
         
         /* Pengaturan Tabel - Optimasi Kolom */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 6pt; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 7pt; table-layout: fixed; }
         th, td { 
             border: 1px solid black; 
             padding: 6px 4px; 
@@ -57,6 +57,28 @@
         input, select { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 6px; margin-top: 8px; }
         .hidden-input { display: none; }
 
+/* Container pembungkus dua tanda tangan */
+.sig-wrapper {
+    display: flex;
+    justify-content: flex-end; /* Dorong semua ke kanan secara default */
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Beri margin-right auto pada koordinator agar dia terdorong ke kiri jauh, 
+   sedangkan penyuluh tetap tertahan di kanan */
+#area-koordinator {
+    display: none; 
+    margin-right: auto; 
+    text-align: center;
+}
+
+/* Sembunyikan koordinator secara default */
+#area-koordinator {
+    display: none; 
+}
+
   /* Container dibuat relative agar posisi absolute gambar mengacu ke sini */
 .sig-container { 
     display: inline-block; 
@@ -77,38 +99,51 @@
     pointer-events: none; /* Agar tidak mengganggu klik pada teks jika perlu */
     mix-blend-mode: multiply; /* Membuat background putih pada TTD jadi transparan */
 }
-       @media print {
+   @media print {
     @page { 
-        size: 215mm 330mm; /* Ukuran presisi F4 */
+        size: 215mm 330mm; /* Kertas F4 */
         margin: 0; 
     }
+    
+    body { background: white; padding: 0; margin: 0; }
     .no-print { display: none !important; }
-    body { background: white; padding: 0; }
-   .page { 
-    margin: 0; 
-    box-shadow: none; 
-    width: 215mm; 
-    min-height: 330mm; /* ✅ pakai min-height */
-    height: auto;      /* ✅ penting */
-    page-break-after: always; 
-}
 
-
-    table {
-        page-break-inside: auto;
+    .page { 
+        margin: 0 !important; 
+        box-shadow: none; 
+        width: 215mm; 
+        height: 330mm; 
+        padding: 25mm 20mm 20mm 20mm; /* Margin: Atas 25mm agar tidak mepet, Samping 20mm */
+        page-break-after: always;
+        position: relative;
+        display: block;
+        color: black;
     }
 
-    tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
+    /* Kunci agar Bab II bisa meluap ke halaman baru */
+    .page.auto-height {
+        height: auto !important; 
+        min-height: 330mm;
     }
 
-    thead {
-        display: table-header-group; /* header tabel ulang di halaman baru */
+    table { 
+        page-break-inside: auto; 
+        width: 100% !important;
+    }
+    
+    tr { 
+        page-break-inside: avoid; /* Baris tabel tidak akan terpotong di tengah */
+    }
+    
+    thead { 
+        display: table-header-group; 
     }
 
-    tfoot {
-        display: table-footer-group;
+    .page-number { 
+        position: absolute; 
+        bottom: 10mm; 
+        left: 50%; 
+        transform: translateX(-50%); 
     }
 }
         .report-container { width: 100%; max-width: 80rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 0 1rem; }
@@ -147,7 +182,7 @@
 <div class="no-print max-w-7xl mx-auto p-4">
     <div class="no-print-area shadow-2xl border-t-4 border-emerald-500">
         <h2 class="text-2xl font-bold text-emerald-400 mb-6 flex items-center gap-3">
-            <i class="fa-solid fa-file-invoice"></i> FORM SKP Bulanan PPL GENERATOR - 16 POIN IKI
+            <i class="fa-solid fa-file-invoice"></i> FORM SKP Bulanan PPL SULSEL GENERATOR AI - 16 POIN IKI
         </h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
@@ -155,6 +190,7 @@
                 <label class="text-xs font-bold text-slate-400 uppercase mb-1">Data Penyuluh</label>
                 <input type="text" id="in_nama" oninput="sync()" placeholder="Abdul Rahman, SP">
                 <input type="text" id="in_nip" oninput="sync()" placeholder="NIP">
+               
                 <select id="in_jabatan" onchange="sync()">
                     <option value="">-- Pilih Jabatan --</option>
                         <option value="Penyuluh Pertanian Pemula">Penyuluh Pertanian Pemula</option>
@@ -167,7 +203,7 @@
                         <option value="Penyuluh Pertanian Ahli Utama">Penyuluh Pertanian Ahli Utama</option>
                     </select>
                 <input type="text" id="in_wkpp" oninput="sync()" placeholder="WKPP: Cth. Desa Manurung">
-                <input type="text" id="in_kab" oninput="sync()" value="Wajo">
+                <input type="text" id="in_kab" oninput="sync()" placeholder="Kabupaten: Cth. Wajo">
                 <input type="text" id="in_bpp" oninput="sync()" placeholder="Kecamatan/Lok. TTD: Cth. Bola">
                 <select id="in_bulan" onchange="sync()">
                     <option value="JANUARI">Januari</option>
@@ -183,10 +219,24 @@
                     <option value="NOVEMBER">November</option>
                     <option value="DESEMBER">Desember</option>
                 </select>
+                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 mt-2 space-y-2">
+    <label class="text-[10px] font-bold text-emerald-400 uppercase">Opsi TTD Koordinator</label>
+    <div class="flex gap-2">
+        <button onclick="toggleKoordinator()" id="btn-koor" class="flex-grow bg-slate-800 text-[10px] py-1 rounded border border-slate-500">
+            <i class="fa-solid fa-eye-slash mr-1"></i> Masukkan TTD Koordinator
+        </button>
+    </div>
+    <div id="input-koor-detail" class="hidden space-y-2">
+        <input type="text" id="in_nama_koor" oninput="sync()" placeholder="Nama Koordinator">
+        <input type="text" id="in_nip_koor" oninput="sync()" placeholder="NIP Koordinator">
+        <input type="file" id="in_ttd_koor" accept="image/*" onchange="handleTTDKoor(this)" class="text-[10px]">
+    </div>
+</div>
+                
                <label class="text-xs font-bold text-slate-400 uppercase -mb-2">Tanggal Laporan (TTD)</label>
                 <input type="date" id="in_tanggal" oninput="sync()">
 
-                <label class="text-xs font-bold text-emerald-400 uppercase -mb-2 mt-2">Upload Tanda Tangan (PNG)</label>
+                <label class="text-xs font-bold text-emerald-400 uppercase -mb-2 mt-2">Upload TTD Penyuluh (PNG)</label>
                 <input type="file" id="in_ttd" accept="image/*" onchange="handleTTD(this)" class="text-xs file:bg-emerald-600 file:border-none file:text-white file:rounded file:px-2 file:py-1">
                 
                 <button onclick="generateAI()" id="btn-ai" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold text-white shadow-lg transition transform hover:scale-105">
@@ -273,43 +323,55 @@
         <div class="page-number">1</div>
     </div>
 
-    <div class="page">
-        <h2 class="font-bold text-lg mb-2 uppercase text-center">BAB II. PEMBAHASAN</h2>
-        <p class="font-bold mb-4">Rincian Capaian Kinerja Bulan <span id="out_bulan_2">JANUARI</span> 2026</p>
-        <table>
-            <thead>
-                <tr>
-                   <th style="width: 34px;">No</th>
-                    <th style="width: 19%;">Komponen Kegiatan</th>
-                    <th style="width: 28%;">Rincian Capaian & Eviden</th>
-                    <th style="width: 20%;">Kendala</th>
-                    <th style="width: 29%;">Tindak Lanjut</th>
-                </tr>
-            </thead>
-            <tbody id="out_table_body"></tbody>
-        </table>
-        <div class="page-number">2</div>
-    </div>
+    <div class="page auto-height">
+    <h2 class="font-bold text-lg mb-2 uppercase text-center">BAB II. PEMBAHASAN</h2>
+    <p class="font-bold mb-4">Rincian Capaian Kinerja Bulan <span id="out_bulan_2">JANUARI</span> 2026</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 34px;">No</th>
+                <th style="width: 19%;">Komponen Kegiatan</th>
+                <th style="width: 28%;">Rincian Capaian & Eviden</th>
+                <th style="width: 20%;">Kendala</th>
+                <th style="width: 29%;">Tindak Lanjut</th>
+            </tr>
+        </thead>
+        <tbody id="out_table_body">
+            </tbody>
+    </table>
+    <div class="page-number">2</div>
+</div>
 
     <div class="page flex flex-col justify-between">
-        <div>
-            <h2 class="font-bold text-lg mb-6 uppercase text-center">BAB III. KESIMPULAN</h2>
-            <div id="out_kesimp" class="text-justify italic text-gray-400">...</div>
+    <div>
+        <h2 class="font-bold text-lg mb-6 uppercase text-center">BAB III. KESIMPULAN</h2>
+        <div id="out_kesimp" class="text-justify italic text-gray-400">...</div>
+    </div>
+
+    <div class="sig-wrapper">
+    <div id="area-koordinator" class="sig-container">
+        Mengetahui,<br>Koordinator BPP,
+        <div class="h-24 relative flex items-center justify-center">
+            <img id="out_ttd_koor" src="" class="img-ttd hidden">
         </div>
-        <div class="flex justify-end">
-            <div class="sig-container">
-                <span id="out_lokasi_tgl2">..., ...</span><br>Penyuluh Pertanian,
-                <div class="h-24 relative flex items-center justify-center">
+        <p class="font-bold uppercase inline-block border-b border-black" id="out_nama_koor">NAMA KOORDINATOR</p>
+        <br>
+        NIP. <span id="out_nip_koor">-</span>
+    </div>
+
+    <div class="sig-container">
+        <span id="out_lokasi_tgl2">..., ...</span><br>Penyuluh Pertanian,
+        <div class="h-24 relative flex items-center justify-center">
             <img id="out_ttd_img2" src="" class="img-ttd hidden">
         </div>
-        
         <p class="font-bold uppercase inline-block border-b border-black" id="out_nama_sig2" style="position: relative; z-index: 5;"></p>
         <br>
         NIP. <span id="out_nip_sig2">-</span>
     </div>
-</div>
-        <div class="page-number">3</div>
     </div>
+    <div class="page-number">3</div>
+</div>
 </div>
 
 <script>
@@ -331,6 +393,90 @@
         "Jumlah Laporan Data Statistik Tanaman Pangan",
         "Jumlah Laporan Data Statistik Perkebunan"
     ];
+
+// Fungsi untuk memunculkan/menghilangkan area tanda tangan koordinator
+function toggleKoordinator() {
+    const areaKoor = document.getElementById('area-koordinator');
+    const inputDetail = document.getElementById('input-koor-detail');
+    const btn = document.getElementById('btn-koor');
+    
+    if (areaKoor.style.display === 'block') {
+        areaKoor.style.display = 'none';
+        inputDetail.classList.add('hidden');
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash mr-1"></i> Tampilkan Koordinator';
+    } else {
+        areaKoor.style.display = 'block'; // Ini akan memicu margin-right: auto
+        inputDetail.classList.remove('hidden');
+        btn.innerHTML = '<i class="fa-solid fa-eye mr-1"></i> Sembunyikan Koordinator';
+    }
+}
+
+// Handler khusus upload TTD Koordinator
+function handleTTDKoor(input) {
+    const img = document.getElementById('out_ttd_koor');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+            img.classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Update fungsi sync() Anda untuk memasukkan data koordinator
+function sync() {
+    const val = (id) => document.getElementById(id).value;
+    
+    // ... kode sync yang sudah ada (nama penyuluh, nip, dll) ...
+
+    // Tambahan untuk Koordinator
+    document.getElementById('out_nama_koor').innerText = val('in_nama_koor') || 'NAMA KOORDINATOR';
+    document.getElementById('out_nip_koor').innerText = val('in_nip_koor') || '-';
+    
+    // Jalankan kode sync penyuluh Bapak yang sudah ada di bawahnya...
+    // (Pastikan baris sync penyuluh Bapak tidak terhapus)
+}
+
+function applySmartBreak() {
+    const container = document.querySelector('.report-container');
+    const tableBody = document.getElementById('out_table_body');
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    const page2 = document.querySelector('.page.auto-height'); // Bab II
+    
+    // Bersihkan sisa potongan halaman sebelumnya agar tidak tumpang tindih
+    document.querySelectorAll('.page-extra').forEach(p => p.remove());
+
+    const maxHeight = 950; // Batas tinggi aman (pixel) untuk kertas F4
+    let currentHeight = 0;
+    let currentTableBody = tableBody;
+
+    rows.forEach((row) => {
+        // Ambil tinggi baris saat ini
+        const rowHeight = row.offsetHeight || 50; 
+
+        if (currentHeight + rowHeight > maxHeight) {
+            // BUAT HALAMAN LANJUTAN
+            const newPage = document.createElement('div');
+            newPage.className = "page auto-height page-extra";
+            newPage.innerHTML = `
+                <p class="font-bold mb-4 italic text-sm text-gray-500">Lanjutan Rincian Capaian Kinerja</p>
+                <table>
+                    <thead>${page2.querySelector('thead').innerHTML}</thead>
+                    <tbody></tbody>
+                </table>
+                <div class="page-number">2</div>`;
+            
+            // Masukkan halaman baru tepat sebelum Bab III (Kesimpulan)
+            container.insertBefore(newPage, container.lastElementChild);
+            currentTableBody = newPage.querySelector('tbody');
+            currentHeight = 0;
+        }
+        
+        currentTableBody.appendChild(row);
+        currentHeight += row.offsetHeight;
+    });
+}
 
     function formatTanggalIndo(dateString) {
         if (!dateString) return "...";
@@ -394,13 +540,15 @@
     }
 // Fungsi untuk menutup peringatan
 function closeWarning() {
+    // Hanya menutup secara visual saja
     document.getElementById('browser-warning').style.display = 'none';
-    // Opsional: Simpan ke localStorage agar tidak muncul lagi setelah refresh
-    localStorage.setItem('warningSeen', 'true');
 }
 
 // Tambahkan pengecekan ini di dalam fungsi init() atau window.onload
-
+function checkFirstVisit() {
+    // Kita paksa dialog untuk selalu muncul setiap halaman dimuat
+    document.getElementById('browser-warning').style.display = 'flex';
+}
 // Update window.onload Anda menjadi:
 window.onload = () => {
     init();
@@ -460,7 +608,7 @@ window.onload = () => {
 
     if(sel.length === 0) return alert("Pilih minimal satu kegiatan!");
     
-    btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Processing via Gemini..."; 
+    btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Ai sedang menyusun laporan Anda..."; 
     btn.disabled = true;
 
    // Prompt yang disesuaikan untuk narasi profesional tanpa subjek personal
@@ -473,8 +621,8 @@ ATURAN NARASI (WAJIB):
 1. JANGAN menggunakan kata ganti orang seperti "Saya", "Kami", atau menyebut nama penyuluh di dalam isi laporan.
 2. Gunakan kalimat pasif formal atau sudut pandang penulis (Contoh: "Telah dilaksanakan...", "Kegiatan difokuskan pada...", "Berdasarkan hasil pemantauan...").
 3. 'kp' (Kata Pengantar): Harus 3 paragraf narasi formal tentang rasa syukur dan pentingnya laporan kinerja ini.
-4. 'latar', 'tugas', 'tujuan': Harus mencerminkan tupoksi PPL sesuai PERMENPAN (perencanaan, pelaksanaan, dan evaluasi).
-5. 'items': Iterasi data. 'rincian' & 'tindak' maksimal 2 kalimat efektif per item.
+4. 'latar', 'tugas', 'tujuan': Harus mencerminkan tupoksi PPL sesuai PermenPANRB Nomor 35 Tahun 2020 (perencanaan, pelaksanaan, dan evaluasi, serta pengembangan penyuluhan pertanian).
+5. 'items': Iterasi data. 'rincian' & 'tindak' maksimal 2-3 kalimat efektif per item.
 6. 'kesimp': Harus 3 paragraf narasi yang merangkum keberhasilan program dan strategi evaluasi ke depan.
 
 Output WAJIB JSON murni tanpa teks pengantar atau markdown:
@@ -525,7 +673,11 @@ try {
         // Hapus style placeholder (warna abu-abu & miring)
         document.querySelectorAll('.italic.text-gray-400').forEach(el => el.classList.remove('italic', 'text-gray-400'));
         
-        alert("✅ Laporan Berhasil Disusun via Gemma 3!");
+        alert("✅ Laporan Berhasil Disusun oleh AI!");
+        // Letakkan di dalam try block, setelah data AI masuk ke tabel
+setTimeout(() => {
+    applySmartBreak();
+}, 800);
 
     } catch (e) { 
         console.error(e);
