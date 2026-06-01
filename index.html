@@ -261,11 +261,11 @@
                 <input type="file" id="in_ttd" accept="image/*" onchange="handleTTD(this)" class="text-xs file:bg-emerald-600 file:border-none file:text-white file:rounded file:px-2 file:py-1">
                 
                 <button onclick="generateAI()" id="btn-ai" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold text-white shadow-lg transition transform hover:scale-105">
-                    🚀 GENERATE AI - NARASI LAPORAN
-                </button>
-                <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold transition text-white">
-                    <i class="fa-solid fa-print mr-2"></i> CETAK/SIMPAN LAPORAN
-                </button>
+    GENERATE AI - NARASI LAPORAN
+</button>
+<button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold transition text-white">
+    CETAK/SIMPAN LAPORAN
+</button>
             </div>
 
             <div class="lg:col-span-3">
@@ -642,7 +642,7 @@ async function generateAI() {
     if (daftarNipTerblokir.includes(nipVal)) return alert("🚫 AKSES DITOLAK");
     if (!nipVal) return alert("Silakan masukkan NIP terlebih dahulu!");
 
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbx0OVwxqadJ_dldMUzYIzwVDr8gJ2dx-e5XuNqJ-XgPP8_t2RaWZjyNAqTbErm-WIHQ/exec"; 
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbzhb6mL_OsZrwfGCHhVPfNvRgN8Qcxw5BkqHrun01ULgI-6sLIxJQsv5re-aES0jduq/exec"; 
     const btn = document.getElementById('btn-ai');
     let sel = [];
     
@@ -660,24 +660,23 @@ async function generateAI() {
 
     if(sel.length === 0) return alert("Pilih minimal satu kegiatan!");
     
-    btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> AI Sedang Menyusun Laporan..."; 
+    // Sesuai aturan: Tombol menggunakan Teks saja (tanpa icon)
+    btn.innerHTML = "MEMPROSES AI... (MOHON TUNGGU)"; 
     btn.disabled = true;
 
-    // PROMPT YANG LEBIH TEGAS & DISIPLIN
-    const promptText = `Anda adalah PPL profesional. Buat laporan dalam format JSON MURNI.
-Data: ${JSON.stringify(sel)}
-Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab. ${document.getElementById('in_kab').value}
-Periode: ${document.getElementById('in_bulan').value} 2026.
-
-WAJIB mengembalikan JSON dengan key berikut (HURUF KECIL):
+    const promptText = `Anda adalah asisten PPL profesional. Buat laporan dalam format JSON MURNI. WAJIB menggunakan key persis seperti ini (HURUF KECIL) dan pastikan SEMUA value adalah Teks/String, JANGAN gunakan Array:
 {
-  "kp": "narasi kata pengantar 3 paragraf",
-  "latar": "narasi latar belakang",
+  "kp": "narasi kata pengantar 3 paragraf lengkap",
+  "latar": "narasi latar belakang lengkap",
   "tugas": "narasi tugas pokok",
   "tujuan": "narasi tujuan",
-  "kesimp": "narasi kesimpulan 3 paragraf",
-  "items": [{"no": 1, "rincian": "", "kendala": "", "tindak": ""}]
-}`;
+  "kesimp": "narasi kesimpulan lengkap",
+  "items": [{"no": 1, "rincian": "...", "kendala": "...", "tindak": "..."}]
+}
+
+Data Laporan: ${JSON.stringify(sel)}
+Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab. ${document.getElementById('in_kab').value}
+Periode: ${document.getElementById('in_bulan').value} 2026.`;
 
     try {
         const response = await fetch(webAppUrl, {
@@ -689,65 +688,66 @@ WAJIB mengembalikan JSON dengan key berikut (HURUF KECIL):
         let obj;
 
         try {
-            // Trik Sakti: Ambil hanya bagian di dalam kurung kurawal (mengantisipasi teks tambahan AI)
             const cleanJson = rawText.substring(rawText.indexOf('{'), rawText.lastIndexOf('}') + 1);
             const parsed = JSON.parse(cleanJson);
             
-            // AUTO-REPAIR: Pastikan semua key menjadi huruf kecil agar sinkron
             obj = Object.keys(parsed).reduce((acc, key) => {
                 acc[key.toLowerCase()] = parsed[key];
                 return acc;
             }, {});
         } catch (e) {
-            console.error("Format AI rusak:", rawText);
-            throw new Error("AI memberikan format yang salah. Silakan coba lagi.");
+            console.error("Format JSON dari AI terpotong/rusak:", rawText);
+            throw new Error("Sistem kehabisan waktu atau JSON terpotong. Silakan klik Generate ulang.");
         }
 
-        // VALIDASI KEBERADAAN DATA
-        if (!obj.kp) throw new Error("AI gagal membuat Kata Pengantar. Coba lagi.");
+        // AUTO-RECOVERY: Ambil value meskipun AI bandel ganti nama key
+        const kataPengantar = obj.kp || obj.kata_pengantar || obj['kata pengantar'] || obj.pengantar;
+        const latarBelakang = obj.latar || obj.latar_belakang || obj['latar belakang'];
+        const tugasPokok = obj.tugas || obj.tugas_pokok || obj['tugas pokok'];
+        const kesimpulanText = obj.kesimp || obj.kesimpulan;
+
+        if (!kataPengantar) throw new Error("AI gagal memformat Kata Pengantar. Coba lagi.");
+
+        // AUTO-RECOVERY: Jika AI membandel kirim Array, gabungkan jadi teks
+        const parseText = (val) => Array.isArray(val) ? val.join("\n\n") : (val || "-");
 
         // UPDATE UI
-        document.getElementById('out_kp').innerHTML = obj.kp.replace(/\n/g, '<br>');
-        document.getElementById('out_latar').innerHTML = obj.latar.replace(/\n/g, '<br>');
-        document.getElementById('out_tugas_pokok').innerHTML = obj.tugas.replace(/\n/g, '<br>');
-        document.getElementById('out_tujuan').innerHTML = obj.tujuan.replace(/\n/g, '<br>');
-        document.getElementById('out_kesimp').innerHTML = obj.kesimp.replace(/\n/g, '<br>');
+        document.getElementById('out_kp').innerHTML = parseText(kataPengantar).replace(/\n/g, '<br>');
+        document.getElementById('out_latar').innerHTML = parseText(latarBelakang).replace(/\n/g, '<br>');
+        document.getElementById('out_tugas_pokok').innerHTML = parseText(tugasPokok).replace(/\n/g, '<br>');
+        document.getElementById('out_tujuan').innerHTML = parseText(obj.tujuan).replace(/\n/g, '<br>');
+        document.getElementById('out_kesimp').innerHTML = parseText(kesimpulanText).replace(/\n/g, '<br>');
 
         // UPDATE TABEL
-updateTable(); // Refresh tabel kosong dulu
-obj.items.forEach(item => {
-    // Toleransi jika AI membalas dengan key huruf besar
-    const rincianVal = item.rincian || item.RINCIAN || "";
-    const kendalaVal = item.kendala || item.KENDALA || "-";
-    const tindakVal = item.tindak || item.TINDAK || "-";
-    const noUrut = item.no || item.NO;
+        updateTable();
+        const items = obj.items || obj.item || [];
+        items.forEach(item => {
+            const rincianVal = item.rincian || item.RINCIAN || "";
+            const kendalaVal = item.kendala || item.KENDALA || "-";
+            const tindakVal = item.tindak || item.TINDAK || "-";
+            const noUrut = item.no || item.NO;
 
-    const rCell = document.getElementById(`r_${noUrut}`);
-    if(rCell) {
-        // 1. Ambil nilai link eviden dari form input
-        const linkEviden = document.getElementById(`ev_${noUrut}`).value.trim();
-        
-        // 2. Gabungkan teks AI dengan link eviden (jika link diisi)
-        let htmlContent = `<b>${rincianVal}</b>`;
-        if (linkEviden !== "") {
-            htmlContent += `<br><br><span class="italic text-blue-700" style="word-break: break-all;"><b>Link Eviden:</b><br>${linkEviden}</span>`;
-        }
-        
-        // 3. Masukkan ke dalam tabel
-        rCell.innerHTML = htmlContent;
-        document.getElementById(`k_${noUrut}`).innerText = kendalaVal;
-        document.getElementById(`t_${noUrut}`).innerText = tindakVal;
-    }
-});
+            const rCell = document.getElementById(`r_${noUrut}`);
+            if(rCell) {
+                const linkEviden = document.getElementById(`ev_${noUrut}`).value.trim();
+                let htmlContent = `<b>${rincianVal}</b>`;
+                if (linkEviden !== "") {
+                    htmlContent += `<br><br><span class="italic text-blue-700" style="word-break: break-all;"><b>Link Eviden:</b><br>${linkEviden}</span>`;
+                }
+                rCell.innerHTML = htmlContent;
+                document.getElementById(`k_${noUrut}`).innerText = kendalaVal;
+                document.getElementById(`t_${noUrut}`).innerText = tindakVal;
+            }
+        });
 
         document.querySelectorAll('.italic.text-gray-400').forEach(el => el.classList.remove('italic', 'text-gray-400'));
-        alert("✅ Laporan Berhasil Disusun!");
+        alert("Laporan Berhasil Disusun!");
         if (window.applySmartBreak) setTimeout(applySmartBreak, 500);
 
     } catch (e) { 
         alert("Kesalahan: " + e.message); 
     } finally { 
-        btn.innerHTML = "🚀 GENERATE AI - NARASI LAPORAN"; 
+        btn.innerHTML = "GENERATE AI - NARASI LAPORAN"; 
         btn.disabled = false; 
     }
 }
