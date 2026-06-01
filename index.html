@@ -642,7 +642,7 @@ async function generateAI() {
     if (daftarNipTerblokir.includes(nipVal)) return alert("🚫 AKSES DITOLAK");
     if (!nipVal) return alert("Silakan masukkan NIP terlebih dahulu!");
 
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbzhb6mL_OsZrwfGCHhVPfNvRgN8Qcxw5BkqHrun01ULgI-6sLIxJQsv5re-aES0jduq/exec"; 
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbz9YihhI97oJIb5a6BjKregsra9Uu-PAJTA1FKdSFccxORL9WexSC_gIpaLaf5MXGXA/exec"; 
     const btn = document.getElementById('btn-ai');
     let sel = [];
     
@@ -660,7 +660,6 @@ async function generateAI() {
 
     if(sel.length === 0) return alert("Pilih minimal satu kegiatan!");
     
-    // Sesuai aturan: Tombol menggunakan Teks saja (tanpa icon)
     btn.innerHTML = "MEMPROSES AI... (MOHON TUNGGU)"; 
     btn.disabled = true;
 
@@ -679,20 +678,28 @@ Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab. ${document.getEleme
 Periode: ${document.getElementById('in_bulan').value} 2026.`;
 
     try {
+        // --- REQUEST API KEMBALI DIMASUKKAN ---
         const response = await fetch(webAppUrl, {
             method: "POST",
             body: JSON.stringify({ prompt: promptText })
         });
         
         const rawText = await response.text();
-        let obj;
+        let obj; // WAJIB dideklarasikan
 
         try {
             const cleanJson = rawText.substring(rawText.indexOf('{'), rawText.lastIndexOf('}') + 1);
             const parsed = JSON.parse(cleanJson);
             
-            obj = Object.keys(parsed).reduce((acc, key) => {
-                acc[key.toLowerCase()] = parsed[key];
+            // 1. BONGKAR BUNGKUSAN: Jika AI menyelipkan data di dalam object lain
+            let rootObj = parsed;
+            if (Object.keys(parsed).length === 1 && typeof Object.values(parsed)[0] === 'object' && !Array.isArray(Object.values(parsed)[0])) {
+                rootObj = Object.values(parsed)[0];
+            }
+
+            // 2. Normalisasi semua key menjadi huruf kecil
+            obj = Object.keys(rootObj).reduce((acc, key) => {
+                acc[key.toLowerCase()] = rootObj[key];
                 return acc;
             }, {});
         } catch (e) {
@@ -700,15 +707,17 @@ Periode: ${document.getElementById('in_bulan').value} 2026.`;
             throw new Error("Sistem kehabisan waktu atau JSON terpotong. Silakan klik Generate ulang.");
         }
 
-        // AUTO-RECOVERY: Ambil value meskipun AI bandel ganti nama key
-        const kataPengantar = obj.kp || obj.kata_pengantar || obj['kata pengantar'] || obj.pengantar;
-        const latarBelakang = obj.latar || obj.latar_belakang || obj['latar belakang'];
-        const tugasPokok = obj.tugas || obj.tugas_pokok || obj['tugas pokok'];
-        const kesimpulanText = obj.kesimp || obj.kesimpulan;
+        // 3. AUTO-RECOVERY EKSTRA
+        const kataPengantar = obj.kp || obj.kata_pengantar || obj['kata pengantar'] || obj.pengantar || obj.katapengantar;
+        const latarBelakang = obj.latar || obj.latar_belakang || obj['latar belakang'] || obj.latarbelakang || obj.pendahuluan;
+        const tugasPokok = obj.tugas || obj.tugas_pokok || obj['tugas pokok'] || obj.tugaspokok;
+        const kesimpulanText = obj.kesimp || obj.kesimpulan || obj.penutup;
 
-        if (!kataPengantar) throw new Error("AI gagal memformat Kata Pengantar. Coba lagi.");
+        if (!kataPengantar) {
+            console.log("Struktur JSON dari AI yang tidak dikenali:", obj); 
+            throw new Error("AI gagal memformat Kata Pengantar. Coba klik Generate lagi.");
+        }
 
-        // AUTO-RECOVERY: Jika AI membandel kirim Array, gabungkan jadi teks
         const parseText = (val) => Array.isArray(val) ? val.join("\n\n") : (val || "-");
 
         // UPDATE UI
@@ -719,24 +728,69 @@ Periode: ${document.getElementById('in_bulan').value} 2026.`;
         document.getElementById('out_kesimp').innerHTML = parseText(kesimpulanText).replace(/\n/g, '<br>');
 
         // UPDATE TABEL
+        // UPDATE TABEL
         updateTable();
-        const items = obj.items || obj.item || [];
-        items.forEach(item => {
-            const rincianVal = item.rincian || item.RINCIAN || "";
-            const kendalaVal = item.kendala || item.KENDALA || "-";
-            const tindakVal = item.tindak || item.TINDAK || "-";
-            const noUrut = item.no || item.NO;
+        
+        // 1. PENCARIAN ITEM SUPER AGRESIF (Mencari di segala sudut JSON dari AI)
+        let itemsArray = [];
+        let possibleItems = obj.items || obj.item || obj.kegiatan || obj.data || obj.rincian || [];
+        
+        if (typeof possibleItems === 'string') {
+            try { possibleItems = JSON.parse(possibleItems); } catch(e) { possibleItems = []; }
+        }
+        
+        if (Array.isArray(possibleItems) && possibleItems.length > 0) {
+            itemsArray = possibleItems;
+        } else if (typeof possibleItems === 'object' && possibleItems !== null && Object.keys(possibleItems).length > 0) {
+            itemsArray = Object.values(possibleItems);
+        } else {
+            // Jika AI menyembunyikan array di dalam object terdalam, kita bongkar paksa
+            Object.values(obj).forEach(val => {
+                if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && (val[0].rincian || val[0].tindak)) {
+                    itemsArray = itemsArray.concat(val);
+                }
+            });
+        }
 
-            const rCell = document.getElementById(`r_${noUrut}`);
-            if(rCell) {
-                const linkEviden = document.getElementById(`ev_${noUrut}`).value.trim();
+        // 2. BINDING DATA KE TABEL (Anti-Gagal)
+        sel.forEach((pilihanUser, index) => {
+            const noUrutAsli = pilihanUser.no;
+            
+            // Cari data AI berdasarkan nomor urut (no), jika AI menghapus nomornya, ambil berdasarkan urutan index (0, 1, 2...)
+            let itemAI = itemsArray.find(i => String(i.no) === String(noUrutAsli) || String(i.NO) === String(noUrutAsli));
+            if (!itemAI) itemAI = itemsArray[index] || {};
+
+            // Ekstrak nilai rincian (Toleransi nama key AI yang aneh-aneh)
+            let rincianVal = itemAI.rincian || itemAI.RINCIAN || itemAI.Rincian || itemAI.uraian || itemAI.hasil || "";
+            
+            // ==========================================
+            // JARING PENGAMAN TERAKHIR (ULTIMATE FALLBACK)
+            // ==========================================
+            // Jika AI benar-benar gagal buat rincian, kita rakit kalimat otomatis dari inputan user!
+            if (!rincianVal || rincianVal.trim() === "" || rincianVal.trim() === "-") {
+                rincianVal = `Melaksanakan pendampingan pada komponen ${pilihanUser.komponen.toLowerCase()}.${pilihanUser.detail ? ' Detail pelaksanaan: ' + pilihanUser.detail : ' Kegiatan berjalan dengan baik dan sesuai target.'}`;
+            }
+
+            // Ekstrak Kendala & Tindak Lanjut
+            const kendalaVal = pilihanUser.kendala || itemAI.kendala || itemAI.KENDALA || itemAI.Kendala || "-";
+            const tindakVal = itemAI.tindak || itemAI.TINDAK || itemAI.Tindak || itemAI.tindak_lanjut || itemAI.solusi || "Melakukan evaluasi dan koordinasi lebih lanjut.";
+
+            // Masukkan ke sel HTML
+            const rCell = document.getElementById(`r_${noUrutAsli}`);
+            const kCell = document.getElementById(`k_${noUrutAsli}`);
+            const tCell = document.getElementById(`t_${noUrutAsli}`);
+
+            if (rCell) {
+                const linkEviden = document.getElementById(`ev_${noUrutAsli}`).value.trim();
                 let htmlContent = `<b>${rincianVal}</b>`;
+                
                 if (linkEviden !== "") {
                     htmlContent += `<br><br><span class="italic text-blue-700" style="word-break: break-all;"><b>Link Eviden:</b><br>${linkEviden}</span>`;
                 }
+                
                 rCell.innerHTML = htmlContent;
-                document.getElementById(`k_${noUrut}`).innerText = kendalaVal;
-                document.getElementById(`t_${noUrut}`).innerText = tindakVal;
+                if (kCell) kCell.innerText = kendalaVal;
+                if (tCell) tCell.innerText = tindakVal;
             }
         });
 
