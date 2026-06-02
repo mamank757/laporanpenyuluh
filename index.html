@@ -732,55 +732,77 @@ Periode: ${document.getElementById('in_bulan').value} 2026.`;
         document.getElementById('out_kesimp').innerHTML = parseText(kesimpulanText).replace(/\n/g, '<br>');
 
         // UPDATE TABEL
-        // UPDATE TABEL
         updateTable();
         
-        // 1. PENCARIAN ITEM SUPER AGRESIF (Mencari di segala sudut JSON dari AI)
+        // 1. PENCARIAN ITEM SUPER AGRESIF V3 (Bongkar Segala Lapisan Objek AI)
         let itemsArray = [];
-        let possibleItems = obj.items || obj.item || obj.kegiatan || obj.data || obj.rincian || [];
         
-        if (typeof possibleItems === 'string') {
-            try { possibleItems = JSON.parse(possibleItems); } catch(e) { possibleItems = []; }
+        // Fungsi pencari otomatis ke dalam sarang JSON
+        function cariItems(data) {
+            if (Array.isArray(data)) {
+                data.forEach(item => cariItems(item));
+            } else if (typeof data === 'object' && data !== null) {
+                // Ambil semua nama key dari objek ini
+                let keys = Object.keys(data).map(k => String(k).toLowerCase());
+                
+                // Apakah objek ini adalah sebuah "baris tabel"? (Punya rincian/tindak/solusi)
+                let isItem = keys.some(k => k.includes('rincian') || k.includes('tindak') || k.includes('solusi') || k.includes('kendala') || k.includes('detail'));
+                
+                // Pastikan ini BUKAN objek utama yang isinya kata pengantar
+                let isNotParent = !keys.includes('kp') && !keys.includes('latar') && !keys.includes('tugas');
+
+                if (isItem && isNotParent) {
+                    itemsArray.push(data); // Tangkap datanya!
+                } else {
+                    // Kalau bukan, gali terus ke dalam objek anak-anaknya
+                    Object.values(data).forEach(val => cariItems(val));
+                }
+            }
         }
         
-        if (Array.isArray(possibleItems) && possibleItems.length > 0) {
-            itemsArray = possibleItems;
-        } else if (typeof possibleItems === 'object' && possibleItems !== null && Object.keys(possibleItems).length > 0) {
-            itemsArray = Object.values(possibleItems);
-        } else {
-            // Jika AI menyembunyikan array di dalam object terdalam, kita bongkar paksa
-            Object.values(obj).forEach(val => {
-                if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && (val[0].rincian || val[0].tindak)) {
-                    itemsArray = itemsArray.concat(val);
-                }
-            });
+        cariItems(obj); // Jalankan radarnya
+
+        // NORMALISASI KEY (Hapus spasi, underscore, paksa huruf kecil)
+        let safeItemsArray = itemsArray.map(item => {
+            let safeObj = {};
+            for (let k in item) {
+                let cleanKey = String(k).toLowerCase().replace(/[^a-z0-9]/g, '');
+                safeObj[cleanKey] = item[k];
+            }
+            return safeObj;
+        });
+
+        // ==========================================
+        // DEBUGGER: Munculkan isi kepala AI jika gagal
+        // ==========================================
+        if (safeItemsArray.length === 0) {
+            alert("⚠️ SYSTEM ALERT: AI tidak merender data tabel dengan benar!\n\nIni data mentah dari AI (Silakan Screenshot):\n\n" + JSON.stringify(obj, null, 2).substring(0, 800));
         }
 
-        // 2. BINDING DATA KE TABEL (Anti-Gagal)
+        // 2. BINDING DATA KE TABEL 
         sel.forEach((pilihanUser, index) => {
             const noUrutAsli = pilihanUser.no;
             
-            // Cari data AI berdasarkan nomor urut (no), jika AI menghapus nomornya, ambil berdasarkan urutan index (0, 1, 2...)
-            let itemAI = itemsArray.find(i => String(i.no) === String(noUrutAsli) || String(i.NO) === String(noUrutAsli));
-            if (!itemAI) itemAI = itemsArray[index] || {};
+            // Cocokkan data AI berdasarkan 'no' atau cukup ambil urutan index-nya
+            let itemAI = safeItemsArray.find(i => String(i.no) === String(noUrutAsli)) || safeItemsArray[index] || {};
 
-            // Ekstrak nilai rincian (Toleransi nama key AI yang aneh-aneh)
-            let rincianVal = itemAI.rincian || itemAI.RINCIAN || itemAI.Rincian || itemAI.uraian || itemAI.hasil || "";
+            // Ekstrak data AI (sudah kebal terhadap penamaan aneh)
+            let rincianVal = itemAI.rincian || itemAI.rinciancapaian || itemAI.uraian || itemAI.hasil || itemAI.detail || "";
+            let tindakVal = itemAI.tindak || itemAI.tindaklanjut || itemAI.solusi || itemAI.tindakan || itemAI.saran || "";
+            const kendalaVal = pilihanUser.kendala || itemAI.kendala || itemAI.masalah || "-";
             
             // ==========================================
-            // JARING PENGAMAN TERAKHIR (ULTIMATE FALLBACK)
+            // JARING PENGAMAN TERAKHIR
             // ==========================================
-            // Jika AI benar-benar gagal buat rincian, kita rakit kalimat otomatis dari inputan user!
             if (!rincianVal || rincianVal.trim() === "" || rincianVal.trim() === "-") {
                 rincianVal = `Melaksanakan pendampingan pada komponen ${pilihanUser.komponen.toLowerCase()}.${pilihanUser.detail ? ' Detail pelaksanaan: ' + pilihanUser.detail : ' Kegiatan berjalan dengan baik dan sesuai target.'}`;
             }
 
-            // Ekstrak Kendala & Tindak Lanjut
-            const kendalaVal = pilihanUser.kendala || itemAI.kendala || itemAI.KENDALA || itemAI.Kendala || "-";
-            // Ganti baris const tindakVal menjadi seperti ini:
-const tindakVal = itemAI.tindak || itemAI.tindak_lanjut || itemAI.tindakLanjut || itemAI.TINDAK || itemAI.solusi || "Melakukan evaluasi teknis dan pendampingan intensif.";
+            if (!tindakVal || tindakVal.trim() === "" || tindakVal.trim() === "-") {
+                 tindakVal = "Melakukan koordinasi dengan pengurus kelompok tani dan evaluasi lapangan.";
+            }
 
-            // Masukkan ke sel HTML
+            // Memasukkan ke sel HTML
             const rCell = document.getElementById(`r_${noUrutAsli}`);
             const kCell = document.getElementById(`k_${noUrutAsli}`);
             const tCell = document.getElementById(`t_${noUrutAsli}`);
