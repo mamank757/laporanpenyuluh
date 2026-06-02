@@ -642,7 +642,7 @@ async function generateAI() {
     if (daftarNipTerblokir.includes(nipVal)) return alert("🚫 AKSES DITOLAK");
     if (!nipVal) return alert("Silakan masukkan NIP terlebih dahulu!");
 
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbz9YihhI97oJIb5a6BjKregsra9Uu-PAJTA1FKdSFccxORL9WexSC_gIpaLaf5MXGXA/exec"; 
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbwmUcHDp895GuI5VJp0g-UiBAJOrSwbU3pK4ME5CjTa1vYVVbBDPWd02CeWFkEqTHj1/exec"; 
     const btn = document.getElementById('btn-ai');
     let sel = [];
     
@@ -672,6 +672,10 @@ async function generateAI() {
   "kesimp": "narasi kesimpulan lengkap",
   "items": [{"no": 1, "rincian": "...", "kendala": "...", "tindak": "..."}]
 }
+
+PENTING UNTUK ITEMS:
+- Rincian: Buat penjabaran kegiatan yang profesional.
+- Tindak: WAJIB hasilkan solusi/tindak lanjut yang SPESIFIK, TEKNIS, aplikatif, dan BERBEDA-BEDA menyesuaikan masalah pada tiap 'kendala'. Dilarang keras menjawab dengan kalimat template/pasif.
 
 Data Laporan: ${JSON.stringify(sel)}
 Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab. ${document.getElementById('in_kab').value}
@@ -773,7 +777,8 @@ Periode: ${document.getElementById('in_bulan').value} 2026.`;
 
             // Ekstrak Kendala & Tindak Lanjut
             const kendalaVal = pilihanUser.kendala || itemAI.kendala || itemAI.KENDALA || itemAI.Kendala || "-";
-            const tindakVal = itemAI.tindak || itemAI.TINDAK || itemAI.Tindak || itemAI.tindak_lanjut || itemAI.solusi || "Melakukan evaluasi dan koordinasi lebih lanjut.";
+            // Ganti baris const tindakVal menjadi seperti ini:
+const tindakVal = itemAI.tindak || itemAI.tindak_lanjut || itemAI.tindakLanjut || itemAI.TINDAK || itemAI.solusi || "Melakukan evaluasi teknis dan pendampingan intensif.";
 
             // Masukkan ke sel HTML
             const rCell = document.getElementById(`r_${noUrutAsli}`);
