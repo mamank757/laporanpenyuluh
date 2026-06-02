@@ -663,25 +663,89 @@ async function generateAI() {
     btn.innerHTML = "MEMPROSES AI... (MOHON TUNGGU)"; 
     btn.disabled = true;
 
-    const promptText = `Anda adalah asisten Penyuluh Pertanian Lapangan (PPL) profesional. Buat laporan Kinerja Individu dalam format JSON MURNI. WAJIB menggunakan key persis seperti ini (HURUF KECIL) dan pastikan SEMUA value adalah Teks/String:
+    const promptText = `Anda adalah Penyuluh Pertanian Lapangan (PPL) profesional yang menyusun laporan bulanan resmi sesuai standar Kementerian Pertanian Republik Indonesia.
+
+TUGAS:
+Susun narasi laporan bulanan yang formal, objektif, sistematis, dan sesuai kaidah bahasa Indonesia baku.
+
+DATA:
+${JSON.stringify(sel)}
+
+LOKASI:
+BPP ${document.getElementById('in_bpp').value}, Kabupaten ${document.getElementById('in_kab').value}
+
+PERIODE:
+${document.getElementById('in_bulan').value} 2026
+
+KETENTUAN UMUM (WAJIB DIPATUHI):
+- Gunakan bahasa Indonesia baku, formal, dan administratif.
+- Gunakan kalimat pasif dan impersonal (tanpa kata "saya", "kami", atau nama individu).
+- Hindari opini subjektif, gunakan gaya laporan berbasis fakta dan hasil kegiatan.
+- Gunakan variasi kalimat agar tidak repetitif.
+- Setiap bagian minimal memiliki kedalaman narasi (tidak terlalu singkat).
+- PENTING: Untuk memisahkan antar paragraf di dalam teks JSON, WAJIB gunakan karakter '\\n\\n'.
+- Pastikan seluruh output VALID JSON tanpa teks tambahan.
+
+STRUKTUR DAN ATURAN ISI:
+
+1. "kp" (Kata Pengantar):
+- Terdiri dari TEPAT 3 paragraf. (Wajib pisahkan dengan '\\n\\n')
+- Paragraf 1: Ungkapan syukur dan gambaran umum pelaksanaan kegiatan.
+- Paragraf 2: Pentingnya laporan sebagai bentuk pertanggungjawaban kinerja.
+- Paragraf 3: Harapan terhadap pemanfaatan laporan.
+- Gunakan gaya bahasa resmi instansi pemerintah.
+
+2. "latar":
+- Uraikan latar belakang kegiatan penyuluhan.
+- Kaitkan dengan kondisi wilayah, kebutuhan petani, dan program pembangunan pertanian.
+- Minimal 3 paragraf. (Wajib pisahkan dengan '\\n\\n')
+
+3. "tugas":
+- Jelaskan tugas PPL berdasarkan PermenPANRB Nomor 35 Tahun 2020.
+- Wajib mencakup: perencanaan, pelaksanaan, evaluasi, dan pengembangan penyuluhan.
+- Ditulis dalam bentuk narasi, bukan poin.
+
+4. "tujuan":
+- Jelaskan tujuan kegiatan penyuluhan secara spesifik dan terukur.
+- Kaitkan dengan peningkatan kapasitas petani dan produktivitas.
+- Minimal 1 paragraf padat.
+
+5. "items":
+- Iterasi dari data yang diberikan.
+- Setiap item harus memiliki:
+  - "no": nomor urut
+  - "rincian": uraian kegiatan (2–3 kalimat efektif, jelas, berbasis kegiatan nyata)
+  - "kendala": hambatan yang terjadi (1–2 kalimat)
+  - "tindak": langkah tindak lanjut/solusi (2–3 kalimat yang SPESIFIK dan BERBEDA tiap masalah)
+- Gunakan bahasa operasional dan konkret.
+
+6. "kesimp":
+- Terdiri dari TEPAT 3 paragraf. (Wajib pisahkan dengan '\\n\\n')
+- Paragraf 1: Ringkasan pelaksanaan kegiatan dan capaian.
+- Paragraf 2: Evaluasi umum termasuk kendala utama.
+- Paragraf 3: Rekomendasi dan strategi perbaikan ke depan.
+
+FORMAT OUTPUT (WAJIB):
+- Hanya JSON valid
+- TANPA markdown
+- TANPA penjelasan tambahan
+- Struktur harus PERSIS seperti berikut:
+
 {
-  "kp": "narasi kata pengantar SUPER LENGKAP. WAJIB 3 paragraf. Gunakan tanda '\\n\\n' untuk memisahkan antar paragraf.",
-  "latar": "narasi latar belakang lengkap",
-  "tugas": "narasi tugas pokok",
-  "tujuan": "narasi tujuan",
-  "kesimp": "narasi kesimpulan lengkap",
-  "items": [{"no": 1, "rincian": "...", "kendala": "...", "tindak": "..."}]
-}
-
-ATURAN SUPER KETAT:
-1. PPL disini adalah PENYULUH PERTANIAN LAPANGAN profesional (Pegawai/ASN/THL), BUKAN Praktikum Pertanian Lapang Mahasiswa! Jangan pernah sebut Tri Dharma Perguruan Tinggi.
-2. KATA PENGANTAR WAJIB 3 PARAGRAF. Pemisah antar paragraf WAJIB menggunakan karakter '\\n\\n'.
-3. UNTUK ITEMS: Rincian harus menjabarkan kegiatan dengan bahasa birokrasi yang rapi. Tindak lanjut WAJIB SPESIFIK, TEKNIS dan BERBEDA-BEDA tiap kendala!
-
-Data Laporan: ${JSON.stringify(sel)}
-Lokasi: BPP ${document.getElementById('in_bpp').value}, Kab. ${document.getElementById('in_kab').value}
-Periode: ${document.getElementById('in_bulan').value} 2026.`;
-
+  "kp": "",
+  "latar": "",
+  "tugas": "",
+  "tujuan": "",
+  "kesimp": "",
+  "items": [
+    {
+      "no": 1,
+      "rincian": "",
+      "kendala": "",
+      "tindak": ""
+    }
+  ]
+}`;
     try {
         // --- REQUEST API KEMBALI DIMASUKKAN ---
         const response = await fetch(webAppUrl, {
